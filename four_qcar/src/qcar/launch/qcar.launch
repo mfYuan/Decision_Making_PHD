@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <node name="command_node" pkg="qcar"
+          type="commandnode.py" output="screen">
+      
+  </node>
+  <node name="qcar_node" pkg="qcar"
+          type="qcarnode.py" output="screen">
+      
+  </node>
+  <node name="lidar_node" pkg="qcar"
+          type="lidarnode.py" output="screen">
+      
+  </node>
+  <!--node name="csi_node" pkg="qcar"
+          type="csinode.py" output="screen"-->
+      
+  <!--/node-->
+  <node name="rgbd_node" pkg="qcar"
+          type="rgbdnode.py" output="screen">
+      
+  </node>
+
+</launch>

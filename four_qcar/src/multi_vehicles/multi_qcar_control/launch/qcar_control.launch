@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Namespace must be unique. -->
+  <arg name="ns" default="qcar01"/>
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <!--rosparam file="$(find qcar)/config/qcar_control.yaml" 
+	    command="load" 
+            ns="$(arg ns)"
+/-->
+
+  <!--param name="$(arg ns)/jackal_velocity_controller/odom_frame_id" value="$(arg ns)/odom"/>
+  <param name="$(arg ns)/jackal_velocity_controller/base_frame_id" value="$(arg ns)/base_link"/-->
+
+  <!-- load the controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+	output="screen" ns="/QCar" args="joint_state_controller
+					  hubfl_position_controller
+					  hubfr_position_controller"/>
+
+  <!-- Create a control marker for manual control using RVIZ. -->
+  <!--node pkg="interactive_marker_twist_server" type="marker_server" name="twist_marker_server" ns="$(arg ns)">
+    <remap from="twist_marker_server/cmd_vel" to="jackal_velocity_controller/cmd_vel" />
+    <param name="link_name" value="$(arg ns)/base_link"/-->
+  </node> 
+
+
+  <!-- convert joint states to TF transforms for rviz, etc -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+	respawn="false" output="screen">
+    <remap from="/joint_states" to="/qcar/joint_states" />
+  </node>
+
+</launch>

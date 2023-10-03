@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<launch>
+    <!-- for qcar1 -->
+    <node pkg="pure_pursuit" type="pure_pursuit1.py" name="pure_pursuit1" respawn="true" output="screen"/>
+
+    <!-- for qcar2 -->
+    <node pkg="pure_pursuit" type="pure_pursuit2.py" name="pure_pursuit2" respawn="true" output="screen"/>
+</launch>

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<!-- This file launches the Jackal robot controller spawner, which plugs into
+     gazebo to allow the Jackal to be controlled. -->
+ 
+    
+<launch>
+  <!-- Namespace must be unique. -->
+  <arg name="ns" default="qcar1"/>
+  <arg name="cmd_timeout" default="0.5"/>
+
+<!-- Control the steering, axle, and shock absorber joints. -->
+  <!--rosparam file="$(find qcar)/config/$(arg ns)_ackermann_ctrlr_params.yaml" command="load" ns="$(arg ns)"/--> 
+
+  <node name="controller_manager" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+        args="$(find qcar)/config/$(arg ns)_joint_ctrlr_params.yaml">
+    <!--param name="tf_prefix"         value="$(arg ns)"/-->
+  </node>
+<!--node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/$(ns)"
+    args="$(find qcar)/config/qcar_joint_ctrlr_params.yaml"/-->
+<!-- <node name="controller_spawner" pkg="controller_manager" type="spawner"
+  ns="/QCar"
+  args="$(find qcar)/config/qcar_joint_ctrlr_params.yaml"/> -->
+
+<!-- Control the steering, axle, and shock absorber joints. -->
+  <node name="ackermann_controller" pkg="qcar" type="ackermann_controller.py"  ns="/$(arg ns)"> 
+   <!--param name="tf_prefix"         value="$(arg ns)"/>
+   
+   <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
+   <rosparam file="$(find qcar)/config/$(arg ns)_ackermann_ctrlr_params.yaml" command="load"/-->
+   <remap from="/ackermann_cmd" to="$(arg ns)/ackermann_cmd"/>
+   <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
+   <rosparam file="$(find qcar)/config/$(arg ns)_ackermann_ctrlr_params.yaml" command="load"/>
+  </node>
+
+<node name="vehicle_pose_and_velocity_updater" pkg="qcar" type="$(arg ns)_vehicle_pose_and_velocity_updater.py" respawn="true" output="screen"/>
+<node name="transform_publisher" pkg="qcar" type="$(arg ns)_transform_publisher.py" respawn="true" output="screen"/>
+
+  <!-- Load the controller parameters. Also add the namespace to the frames, this 
+       can't be done in the YAML file so we override it here. -->
+  <!--rosparam command="load" 
+            file="$(find multi_jackal_control)/config/jackal_control_config.yaml" 
+            ns="$(arg ns)"
+  /-->
+  <!--param name="$(arg ns)/jackal_velocity_controller/odom_frame_id" value="$(arg ns)/odom"/-->
+  <!--param name="$(arg ns)/jackal_velocity_controller/base_frame_id" value="$(arg ns)/base_link"/-->
+  
+  <!-- Spawn the jackal controls. -->
+  <!--node name="controller_spawner" pkg="controller_manager" type="spawner"
+      args="jackal_joint_publisher jackal_velocity_controller" ns="$(arg ns)">
+  </node-->
+        
+  <!--Create a control marker for manual control using RVIZ. -->
+  <!--node pkg="interactive_marker_twist_server" type="marker_server" name="twist_marker_server" ns="$(arg ns)">
+    <remap from="twist_marker_server/cmd_vel" to="jackal_velocity_controller/cmd_vel" />
+    <param name="link_name" value="$(arg ns)/base_link"/>
+  </node--> 
+
+</launch>

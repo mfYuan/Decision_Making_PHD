@@ -1,0 +1,17 @@
+notes
+
+steering - positive towards the left
+rostopic pub /right_steering_ctrlr/command std_msgs/Float64 "data: 3.0"
+rostopic pub /left_steering_ctrlr/command std_msgs/Float64 "data: 3.0"
+
+velocity - positive forwards
+rostopic pub /left_front_axle_ctrlr/command std_msgs/Float64 "data: 3.0" 
+rostopic pub /left_rear_axle_ctrlr/command std_msgs/Float64 "data: 3.0" 
+rostopic pub /right_front_axle_ctrlr/command std_msgs/Float64 "data: 3.0" 
+rostopic pub /right_rear_axle_ctrlr/command std_msgs/Float64 "data: 3.0" 
+
+
+action_dict = {0: [10.0, -1.0], 1: [10.0, -5.0], 2: [10.0, 0.0],
+               3: [10.0, 5.0], 4: [10.0, 10.0], 5: [5.0, -10.0],
+               6: [5.0, 0.0], 7: [5.0, 1.0], 8: [0.0, -10.0],
+               9: [0.0, 0.0], 10: [0.0, 1.0]}

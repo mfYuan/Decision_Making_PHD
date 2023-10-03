@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="waypoint_loader" type="waypoint_loader1.py" name="waypoint_loader1">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints1.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader2.py" name="waypoint_loader2">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints2.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader3.py" name="waypoint_loader3">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints3.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader4.py" name="waypoint_loader4">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints4.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader5.py" name="waypoint_loader5">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints5.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader6.py" name="waypoint_loader6">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints6.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader7.py" name="waypoint_loader7">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints7.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader8.py" name="waypoint_loader8">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints8.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader9.py" name="waypoint_loader9">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints9.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader10.py" name="waypoint_loader10">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints10.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader11.py" name="waypoint_loader11">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints11.csv" />
+        <param name="velocity" value="10" />
+    </node>
+    <node pkg="waypoint_loader" type="waypoint_loader12.py" name="waypoint_loader12">
+        <param name="path" value="$(find waypoint_loader)/waypoints/waypoints12.csv" />
+        <param name="velocity" value="10" />
+    </node>
+</launch>

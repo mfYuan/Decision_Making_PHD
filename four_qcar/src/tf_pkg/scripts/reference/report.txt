@@ -1,0 +1,49 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 1 files
+Detected 1 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: 10_D3QN_PER_image_add_sensor_empty_world_30m.py
+--------------------------------------------------------------------------------
+10_D3QN_PER_image_add_sensor_empty_world_30m.py:530:20: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+================================================================================
+Detailed log follows:
+
+================================================================================
+--------------------------------------------------------------------------------
+Processing file '10_D3QN_PER_image_add_sensor_empty_world_30m.py'
+ outputting to '10_D3QN_PER_image_add_sensor_empty_world_30m_v2.py'
+--------------------------------------------------------------------------------
+
+148:15: INFO: Renamed 'tf.random_uniform' to 'tf.random.uniform'
+152:15: INFO: Added keywords to args of function 'tf.nn.conv2d'
+152:15: INFO: Renamed keyword argument for tf.nn.conv2d from filter to filters
+156:30: INFO: Renamed 'tf.trainable_variables' to 'tf.compat.v1.trainable_variables'
+164:26: INFO: Renamed 'tf.assign' to 'tf.compat.v1.assign'
+167:8: INFO: Renamed 'tf.reset_default_graph' to 'tf.compat.v1.reset_default_graph'
+170:23: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+174:24: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+177:13: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+206:19: INFO: Renamed 'tf.contrib.rnn.BasicLSTMCell' to 'tf.compat.v1.nn.rnn_cell.BasicLSTMCell'
+207:33: INFO: Renamed 'tf.nn.static_rnn' to 'tf.compat.v1.nn.static_rnn'
+224:52: INFO: Added keywords to args of function 'tf.reduce_mean'
+228:13: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+254:26: INFO: Renamed 'tf.contrib.rnn.BasicLSTMCell' to 'tf.compat.v1.nn.rnn_cell.BasicLSTMCell'
+255:47: INFO: Renamed 'tf.nn.static_rnn' to 'tf.compat.v1.nn.static_rnn'
+272:66: INFO: Added keywords to args of function 'tf.reduce_mean'
+281:24: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+283:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+286:23: INFO: Added keywords to args of function 'tf.reduce_sum'
+286:23: INFO: Renamed keyword argument for tf.reduce_sum from reduction_indices to axis
+289:15: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+293:15: INFO: Added keywords to args of function 'tf.reduce_sum'
+298:21: INFO: Renamed 'tf.train.AdamOptimizer' to 'tf.compat.v1.train.AdamOptimizer'
+305:17: INFO: Renamed 'tf.ConfigProto' to 'tf.compat.v1.ConfigProto'
+308:15: INFO: Renamed 'tf.InteractiveSession' to 'tf.compat.v1.InteractiveSession'
+313:15: INFO: Renamed 'tf.global_variables_initializer' to 'tf.compat.v1.global_variables_initializer'
+317:16: INFO: Renamed 'tf.train.Saver' to 'tf.compat.v1.train.Saver'
+530:20: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+540:8: INFO: Renamed 'tf.set_random_seed' to 'tf.compat.v1.set_random_seed'
+--------------------------------------------------------------------------------
+

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="waypoint_updater" type="waypoint_updater4.py" name="waypoint_updater4"/>
+
+    <node pkg="waypoint_updater" type="waypoint_updater5.py" name="waypoint_updater5"/>
+
+    <node pkg="waypoint_updater" type="waypoint_updater6.py" name="waypoint_updater6"/>
+
+    <node pkg="waypoint_updater" type="waypoint_updater7.py" name="waypoint_updater7"/>
+
+    <node pkg="waypoint_updater" type="waypoint_updater8.py" name="waypoint_updater8"/>
+
+    <node pkg="waypoint_updater" type="waypoint_updater10.py" name="waypoint_updater10"/>
+</launch>

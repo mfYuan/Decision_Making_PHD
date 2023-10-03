@@ -1,0 +1,444 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Author: Mingfeng Yuan;
+Date: Nov/2022
+"""
+
+# Import modules
+
+#import random
+import random
+import numpy as np
+#import matplotlib.pyplot as plt
+import datetime
+import time
+#import cv2
+import math
+import rospy
+import signal
+import sys
+import numpy.matlib
+import matplotlib.pyplot as plt
+import os
+from qcar_link1 import DQN1
+from qcar_link2 import DQN2
+from qcar_link3 import DQN3
+from qcar_link4 import DQN4
+from qcar_link5 import DQN5
+from qcar_link6 import DQN6
+from qcar_link7 import DQN7
+from qcar_link8 import DQN8
+from gazebo_env_four_qcar_links import envmodel
+import plot_sim_DiGraph_new
+import plot_level_ratio
+import plot_graph
+import paper_plt
+#import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = '0'  # 默认显卡0
+
+link1 = DQN1()
+link2 = DQN2()
+link3 = DQN3()
+link4 = DQN4()
+link5 = DQN5()
+link6 = DQN6()
+link7 = DQN7()
+link8 = DQN8()
+env = envmodel()
+
+
+qcar1_dict = {0: -3.0, 1: -1.5, 2: 0.0, 3: 1.5, 4: 3.0}
+qcarx_dict = {0: [0.3, 0.0], 1: [0.6, 0.0], 2: [0.9, 0.0], 3: [1.2, 0.0], 4: [1.5, 0.0]}
+
+delay = 0.35
+
+def quit(sig, frame):
+    sys.exit(0)
+
+class DQN:
+    def __init__(self):
+        rospy.init_node('control_node_main', anonymous=True)
+        # Algorithm Information
+        self.debug = False
+        # Get parameters
+        self.progress = ''
+        # ------------------------------
+
+        self.step = 1
+        self.episode = 0
+
+        # Initialize agent robot
+        self.agentrobot1 = 'qcar1' #Ego
+        self.agentrobot2 = 'qcar2' #left # 1
+        self.agentrobot3 = 'qcar3' #right# 1
+        self.agentrobot4 = 'qcar4' #top# 1
+        self.agentrobot5 = 'qcar5' #left # 2
+        self.agentrobot6 = 'qcar6' #right# 2
+        self.agentrobot7 = 'qcar7' #top# 2
+        self.agentrobot8 = 'qcar8' #After Ego
+        # Define the distance from start point to goal point
+        self.d = 4.0
+        # self.get_path = self.choose_path([2, 1, 3, 4])
+        # self.Driver_level = self.set_behaviour([2, 1, 3, 4])
+        # Define the step for updating the environment
+        self.MAXSTEPS = 500
+        # ------------------------------
+
+    def select_path(self):
+        if self.debug:
+            path_ls_car1 = {'strait':'5'}
+            path_ls_car2 = {'strait':'8'}
+            path_ls_car3 = {'strait':'6'}
+            path_ls_car4 = {'strait':'7'}
+        else:
+            path_ls_car1 = {'right':'4', 'strait':'5', 'left':'10'}
+            path_ls_car2 = {'right':'3', 'strait':'8', 'left':'9'}
+            path_ls_car3 = {'right':'1', 'strait':'6', 'left':'11'}
+            path_ls_car4 = {'right':'2', 'strait':'7', 'left':'12'}
+            path_ls_car5 = {'right':'3', 'strait':'8', 'left':'9'}
+            path_ls_car6 = {'right':'1', 'strait':'6', 'left':'11'}
+            path_ls_car7 = {'right':'2', 'strait':'7', 'left':'12'}
+            path_ls_car8 = {'right':'4', 'strait':'5', 'left':'10'}
+            
+        car1_path = random.choice(path_ls_car1.items())
+        car2_path = random.choice(path_ls_car2.items())
+        car3_path = random.choice(path_ls_car3.items())
+        car4_path = random.choice(path_ls_car4.items()) 
+        car5_path = random.choice(path_ls_car5.items())
+        car6_path = random.choice(path_ls_car6.items())
+        car7_path = random.choice(path_ls_car7.items()) 
+        car8_path = random.choice(path_ls_car8.items())
+        path_collection = [car1_path, car2_path, car3_path, car4_path, car5_path, car6_path, car7_path, car8_path]
+        path = []
+        for car in car_id:
+            _path = path_collection[car-1]
+            if car ==1:
+                path_ls = {'1':'4', '2':'5', '3':'10'}
+            elif car ==2:
+                path_ls ={'1':'3', '2':'8', '3':'9'}
+            elif car ==3:
+                path_ls ={'1':'1', '2':'6', '3':'11'}
+            elif car==4:
+                path_ls ={'1':'2', '2':'7', '3':'12'}
+            elif car==5:
+                path_ls ={'1':'3', '2':'8', '3':'9'}
+            elif car==6:
+                path_ls ={'1':'1', '2':'6', '3':'11'}
+            elif car==7:
+                path_ls ={'1':'2', '2':'7', '3':'12'}
+            elif car==8:
+                path_ls ={'1':'4', '2':'5', '3':'10'}
+            path.append(path_ls.items()[int(_path)])
+        # print('car2:{}, car1:{}, car3:{}, car4:{}, car5:{}'.format(car2_path, car1_path, car3_path, car4_path, car5_path))
+        return path
+    
+    def choose_path(self, car_id):
+        
+        path = []
+        for car in car_id:
+            _path = input('set path for car:{}: Right:0; Strait:2; Left: 1: '.format(car))
+            
+            if car ==1:
+                path_ls = {'1':'4', '2':'5', '3':'10'}
+            elif car ==2:
+                path_ls ={'1':'3', '2':'8', '3':'9'}
+            elif car ==3:
+                path_ls ={'1':'1', '2':'6', '3':'11'}
+            elif car==4:
+                path_ls ={'1':'2', '2':'7', '3':'12'}
+            elif car==5:
+                path_ls ={'1':'3', '2':'8', '3':'9'}
+            elif car==6:
+                path_ls ={'1':'1', '2':'6', '3':'11'}
+            elif car==7:
+                path_ls ={'1':'2', '2':'7', '3':'12'}
+            elif car==8:
+                path_ls ={'1':'4', '2':'5', '3':'10'}
+            print('input path: {}, path: {}'.format(_path, path_ls.items()[int(_path)]))
+            path.append(path_ls.items()[int(_path)])
+        # print('car2:{}, car1:{}, car3:{}, car4:{}, car5:{}'.format(path[0], path[1], path[2], path[3], path[4]))
+        return path
+    
+    def set_behaviour(self, car_id):
+        Driver_level = []
+        for car in car_id:
+            _driver = input('set driving behaviour for car:{} (0=Aggresive / 1=Adptive / 2=Conservative): '.format(car))
+            
+            Driver_level.append(_driver)
+        return Driver_level
+    
+    def set_car_num(self):
+        c_id = input('how many cars?: 4 - 8?: ')
+        if int(c_id)==2:
+            car_id = [2, 1] 
+        elif int(c_id)==3:
+           car_id = [2, 1, 3] 
+        elif int(c_id)==4:
+            car_id = [2, 1, 3, 4]
+        elif int(c_id)==5:
+            car_id = [2, 1, 3, 4, 5]
+        elif int(c_id)==6:
+            car_id = [2, 1, 3, 4, 5, 6]
+        elif int(c_id)==7:
+            car_id = [2, 1, 3, 4, 5, 6, 7]
+        else:
+            car_id = [2, 1, 3, 4, 5, 6, 7, 8]
+        return car_id
+    
+
+    def main(self):
+        print("Main begins.")
+        car_id = self.set_car_num()
+        self.step_for_newenv = 0
+        spawn_ls = [str(0)] * 8
+        for i in car_id:
+            spawn_ls[i-1] = str(1)
+
+        env.reset_env(spawn_ls)
+        setting = input('Random Path? (1=True / 2=False): ')
+        if setting ==1:
+            self.get_path = self.choose_path(car_id)
+        
+        ans = input('Reset Driving behavioursh? (1=True / 2=False): ')
+        if ans ==1:
+            self.Driver_level = self.set_behaviour(car_id)
+  
+        link1.env.Initial_GTMPC(self.get_path, self.Driver_level)
+        setting1 = input('new_algorithm? (1=True / 2=False): ')
+        if setting1 ==1:
+            new_algorithm = True
+            print('new_algorithm{}'.format(new_algorithm))
+        else:
+            new_algorithm = False
+            print('new_algorithm{}'.format(new_algorithm))
+        if new_algorithm == False:
+            multi_processing = False
+        else:
+            setting2 = input('multi_processing? (1=True / 2=False): ')
+            if setting2 ==1:
+                multi_processing = True
+                print('multi_processing{}'.format(multi_processing))
+            else:
+                multi_processing = False
+                print('multi_processing{}'.format(multi_processing))
+
+        self.Record_data = {}
+        _data = []
+        _vel = []
+        _matrix = []
+        Level_ratio_his=np.zeros((1, link1.env.max_step, np.shape(link1.env.Level_ratio)[0], np.shape(link1.env.Level_ratio)[1]))
+        Pos_his = np.zeros((1, link1.env.max_step, 10, link1.env.num_cars))
+        
+        creat_folder = input('new folder name: ')
+        path = '/home/sdcnlab025/ROS_test/four_qcar/src/tf_pkg/safe_RL/AIM/MPC_RL/Images/Recorded/'+str(creat_folder)
+        
+        # Check whether the specified path exists or not
+        isExist = os.path.exists(path)
+        path_ls = []
+        if not isExist:
+            name_ls = ['/motion', '/graph', '/others', '/level', '/txtfile']
+            for i in name_ls:
+                # Create a new directory because it does not exist
+                sub_folder = path + i
+                path_ls.append(sub_folder)
+                os.makedirs(sub_folder)
+        
+        Start = time.time()
+        speed_data=[]
+        while True:
+            # env.render_env(X_old)
+            GTMPC_actions_ID, X_old, l_ratio, complet_ls, Matrix_buffer = link1.select_action_new(new_algorithm, multi_processing)
+            
+            # print(l_ratio[4:8][:])
+            # print(X_old[0:3][:])
+            # print('__________________________________________')
+            current = time.time()
+            time_stamp = current-Start
+            
+            params = link1.env.params
+            
+            # GTMPC_actions_ID = [0,0,0,0]
+                
+            link1.speed(X_old, GTMPC_actions_ID[1], params)
+            link2.speed(X_old, GTMPC_actions_ID[0], params)
+            link3.speed(X_old, GTMPC_actions_ID[2], params)
+            if link1.env.num_cars ==4:
+                link4.speed(X_old, GTMPC_actions_ID[3], params)
+            elif link1.env.num_cars ==5:
+                link5.speed(X_old, GTMPC_actions_ID[4], params)
+            elif link1.env.num_cars ==6:
+                link5.speed(X_old, GTMPC_actions_ID[4], params)
+                link6.speed(X_old, GTMPC_actions_ID[5], params)
+            elif link1.env.num_cars ==7:
+                link5.speed(X_old, GTMPC_actions_ID[4], params)
+                link6.speed(X_old, GTMPC_actions_ID[5], params)
+                link7.speed(X_old, GTMPC_actions_ID[6], params)
+            elif link1.env.num_cars ==8:
+                link5.speed(X_old, GTMPC_actions_ID[4], params)
+                link6.speed(X_old, GTMPC_actions_ID[5], params)
+                link7.speed(X_old, GTMPC_actions_ID[6], params)
+                link8.speed(X_old, GTMPC_actions_ID[7], params)
+            
+            speed_data.append([time_stamp]+link1.env.data_vel)
+                
+            X_old = link1.env.veh_pos_realtime(X_old)
+            _data.append([time_stamp, link1.running_time])
+            if new_algorithm ==True:
+                if multi_processing == True:
+                    _matrix.append(Matrix_buffer[1]['matrix'])
+                else:
+                    _matrix.append(Matrix_buffer[1])
+            # _vel.append(link1.env.data_vel)
+            _tem = []
+            for it in range(len(X_old[0, :])):
+                if X_old[8, it]+100 >=X_old[6, it]:
+                    current_idx = X_old[6, it]-100
+                else:
+                    current_idx = X_old[8, it]
+                _tem.append((current_idx-X_old[5, it])/(X_old[6, it]-100-X_old[5, it]))
+                # _tem.append(X_old[8, it]/(X_old[6, it]-X_old[5, it]))
+            _vel.append(_tem)
+            Pos_his[link1.env.episode, self.step_for_newenv, :, :] = X_old
+            Level_ratio_his[link1.env.episode, self.step_for_newenv, :, :] = l_ratio
+            
+            # print(Pos_his[link1.env.episode, self.step_for_newenv, 0:3, :])
+            # print('------------------------------------------')
+            self.step_for_newenv += 1
+
+            # Reset environment
+            if self.step_for_newenv == link1.env.max_step or len(complet_ls) == link1.env.num_cars:#or terminal_1 == True
+                env.stop_all_cars()
+                
+                time.sleep(0.1)
+                self.Record_data[str(self.episode)] = _data
+                # print(str(self.episode), self.Record_data[str(self.episode)])
+                # print('--------------------------------')
+                _episode = 0
+                ls = []
+                print(self.Record_data.keys())
+                while _episode != -1:
+                    _episode = input('choose episodes: ')
+                    ls.append(_episode)
+                ls.remove(-1)
+                
+                plt.ion()
+                
+                
+                if len(ls)>0:
+                    # plt.figure('Running Time', figsize=(8, 6))
+                    paper_plt.plot_vel(speed_data)
+                    paper_plt.plot_runtime(self.Record_data, ls, path_ls[2], params)
+
+                    pre_time = 0
+                    fig_sim = plt.figure('Intersection Scenario', figsize=(6, 6))
+                    fig_graph = plt.figure('Dynamic graph', figsize=(6, 6))
+                    
+                    counter = 0
+                    paper_plt.plot_progress(self.Record_data, _vel, path_ls, ls, params)
+                    # plt.figure('vel', figsize=(8, 6))
+
+                    paper_plt.plot_level_ratio(self.Record_data, Level_ratio_his, path_ls, ls, params)
+                                  
+                    
+                    # self.fig_0 = plt.figure('Probability to car1', figsize=(6, 3))
+                    # self.fig_2 = plt.figure('Probability to car2', figsize=(6, 3))
+                    # self.fig_3 = plt.figure('Probability to car3', figsize=(6, 3))
+                    for k in range(len(_data)):
+                        step =  _data[k][0]- pre_time
+                        pre_time = _data[k][0]
+                        # print('---level_ratio---',level_ratio)
+                        lr = Level_ratio_his[link1.env.episode, counter, :, :]
+                        pos = Pos_his[link1.env.episode, counter, :, :]
+                        # 
+                        # Dynamic graph
+                        if new_algorithm ==True:
+                            plot_graph.plot_graph(pos, _matrix[counter], fig_graph, counter, path_ls)
+                        plot_sim_DiGraph_new.plot_sim(pos, link1.env.params, step, lr, fig_sim, counter, path_ls)
+                        #Estimation
+                        # for ii in range(1, link1.env.num_cars):
+                        #     plot_level_ratio.plot_level_ratio(Level_ratio_his, 1, ii, params, k, link1.env.episode, link1.env.max_step, ii, step)
+                        counter +=1
+                # plot_level_ratio.plot_level_ratio(self.Level_ratio_history, ego_car_id, opp_car_id, self.params, self.step, self.episode, self.max_step, self.fig_0)
+                    
+                self.episode +=1 
+                # stop all vehicles
+                env.stop_all_cars()
+                time.sleep(0.1)
+
+                self.step_for_newenv = 0
+
+                self.spawn_qcar2 = str(0)
+                self.spawn_qcar3 = str(0)
+                self.spawn_qcar4 = str(0)
+                self.spawn_qcar5 = str(1)
+
+                Num_cars = 3#np.random.choice([3, 2, 1, 0], p=[0.4, 0.3, 0.2, 0.1])
+
+                
+
+                # Choose path for qcar1 - 4 is right turn, 5 is straight, 10 is left turn
+                # qcar1_path = str(np.random.choice([4, 5, 10]))
+                setting = input('Random Path? (1=True / 2=False): ')
+           
+                if setting ==1:
+                    self.get_path = self.choose_path(car_id)
+                spawn_ls = [str(0)] * 8    
+                for i in car_id:
+                    spawn_ls[i-1] = str(1)
+                
+                env.reset_env(spawn_ls)
+                
+                check_state = input('Next round of test? (1=Ready / 2=Wait): ')
+                if check_state:      
+                    ans = input('Reset Driving behavioursh? (1=True / 2=False): ')
+                    if ans ==1:
+                        self.Driver_level = self.set_behaviour(car_id)
+                    # self.Driver_level = [2, 1, 2, 2, 2]
+                    # Driver_level = [0, 0, 0, 0]
+                    
+                    link1.env.Initial_GTMPC(self.get_path, self.Driver_level)
+                    setting1 = input('new_algorithm? (1=True / 2=False): ')
+                    if setting1 ==1:
+                        new_algorithm = True
+                        print('new_algorithm{}'.format(new_algorithm))
+                    else:
+                        new_algorithm = False
+                        print('new_algorithm{}'.format(new_algorithm))
+                    if new_algorithm == False:
+                        multi_processing = False
+                    else:
+                        setting2 = input('multi_processing? (1=True / 2=False): ')
+                        if setting2 ==1:
+                            multi_processing = True
+                            print('multi_processing{}'.format(multi_processing))
+                        else:
+                            multi_processing = False
+                            print('multi_processing{}'.format(multi_processing))
+                    # link1.env.Initial_GTMPC(get_path)
+                    _data = []
+                    _vel = []
+                    _matrix = []
+                    Level_ratio_his=np.zeros((1, link1.env.max_step, np.shape(link1.env.Level_ratio)[0], np.shape(link1.env.Level_ratio)[1]))
+                    creat_folder = input('new folder name: ')
+                    path = '/home/sdcnlab025/ROS_test/four_qcar/src/tf_pkg/safe_RL/AIM/MPC_RL/Images/Recorded/'+str(creat_folder)
+                    # Check whether the specified path exists or not
+                    isExist = os.path.exists(path)
+                    path_ls = []
+                    if not isExist:
+                        name_ls = ['/motion', '/graph', '/others']
+                        for i in name_ls:
+                            # Create a new directory because it does not exist
+                            sub_folder = path + i
+                            path_ls.append(sub_folder)
+                            os.makedirs(sub_folder)
+                    
+                    
+                    Start = time.time()
+
+
+if __name__ == '__main__':
+    signal.signal(signal.SIGINT, quit)
+    agent = DQN()
+    agent.main()

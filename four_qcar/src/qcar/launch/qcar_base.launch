@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+
+<!-- ackermann_vehicle.launch
+
+Use Gazebo to simulate a vehicle with Ackermann steering.
+
+Arguments:
+    namespace (string, default: ackermann_vehicle)
+        Vehicle namespace.
+    world_name (string, default: worlds/empty_sensor.world)
+        Gazebo world name.
+    cmd_timeout (float, default: 0.5)
+        Command timeout passed to the ackermann_controller.py node.
+    x (float, default: 0.0)
+    y (float, default: 0.0)
+    z (float, default: 0.1)
+    roll (float, default: 0.0)
+    pitch (float, default: 0.0)
+    yaw (float, default: 0.0)
+        Vehicle pose. x, y, and z are measured in meters. roll, pitch, and yaw
+        are measured in radians.
+
+Copyright (c) 2013 Wunderkammer Laboratory
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<launch>
+
+  <!--arg name="namespace"   default="QCar"/-->
+  <!--arg name="world"       default="empty" doc="worlds: [empty, warehouse, checkerboard]"/-->
+  <!--arg name="cmd_timeout" default="0.0"/--><!--arg name="cmd_timeout" default="0.5"/-->
+  <arg name="rectify"     default="true" />
+  <arg name="stereo_view" default="false" />
+  <arg name="world" default="empty_sensor"/><!--empty_sensor; obstacle_sensor; empty--> 
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="use_move_base"  default="false"/> <!-- Allows navigation to a location. -->
+ 
+  <!-- Vehicle pose -->
+  <arg name="ns"          default="qcar1"/>  
+  <arg name="x"           default="0.0"/>
+  <arg name="y"           default="0.0"/>
+  <arg name="z"           default="0.2"/>
+  <arg name="roll"        default="0.0"/>
+  <arg name="pitch"       default="0.0"/>
+  <arg name="yaw"         default="0.0"/>  
+
+<!--node name="spawn_vehicle" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-urdf -param robot_description -model $(arg ns)
+                -x $(arg x) -y $(arg y) -z $(arg z)
+                -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)"/-->  
+
+  <!-- Launch the control portion of the Jackal robot. -->
+
+<!--group ns="$(arg ns)"-->
+
+  <include file="$(find qcar)/launch/qcar_control_new.launch">
+    <arg name="ns" value="$(arg ns)"/>
+  </include>
+
+  <!-- load robot description -->
+  <include file="$(find qcar)/launch/suqcar_ackermann_new.launch">
+    <arg name="ns" value="$(arg ns)"/>
+  </include>
+
+  <!-- Spawn the model into gazebo. -->
+  <node name="spawn_create_model" pkg="gazebo_ros" type="spawn_model"
+    args="-x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)
+    -urdf -param /$(arg ns)/robot_description -model $(arg ns)">
+  </node>
+  <!-- Spawn the model into gazebo. -->
+<!--node name="spawn_create_model" pkg="gazebo_ros" type="spawn_model"
+    args="-x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)
+    -urdf -param /$(arg ns)/robot_description -model $(arg ns)">
+</node-->
+  <!-- <group ns="$(arg namespace)"> -->
+
+    <!-- Create the world. -->
+    <!-- <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include> -->
+
+
+
+
+
+    <!-- <remap from="/scan" to="/qcar/lidar"/> -->
+
+
+    <!-- <node name="spawn_vehicle" pkg="gazebo_ros" type="spawn_model"
+          args="-urdf -param robot_description -model qcar
+                -gazebo_namespace /QCar/gazebo
+                -x $(arg x) -y $(arg y) -z $(arg z)
+                -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)"/> -->
+    <!-- <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-z 1.0 -unpause -urdf -model $(arg model) -file $(find qcar)/urdf/$(arg model)_test2.xacro" respawn="false" output="screen" /> -->
+
+    <!-- Load the joint controllers. One of these publishes the joint states
+         to joint_states. -->
+    
+
+    <!-- <remap from="/qcar/lidar" to="scan"/> -->
+
+    <!-- launch stereo image proc pipeline for rectification -->
+    <!-- <group if="$(arg rectify)">
+      <node name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc" ns="stereo_camera" />
+      <node name="stereo_view" pkg="image_view" type="stereo_view" output="screen"
+            args="stereo:=stereo_camera image:=/image_rect_color" if="$(arg stereo_view)"/>
+    </group> -->
+
+    <!-- launch camera calibrator if checkerboard world is selected -->
+    <!-- <include if="$(eval world=='checkerboard')" file="$(find ackermann_vehicle_gazebo)/launch/stereo_camera_calibration.launch" /> -->
+
+<!--/group-->
+</launch>

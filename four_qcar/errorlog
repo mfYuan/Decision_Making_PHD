@@ -1,0 +1,14 @@
+WARNING:tensorflow:From 10_D3QN_PER_image_add_sensor_empty_world_30m.py:206: __init__ (from tensorflow.python.ops.rnn_cell_impl) is deprecated and will be removed in a future version.
+Instructions for updating:
+This class is deprecated, please use tf.nn.rnn_cell.LSTMCell, which supports all the feature this cell currently has. Please replace the existing code with tf.nn.rnn_cell.LSTMCell(name='basic_lstm_cell').
+2020-11-24 14:09:10.533839: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+Load Model? (1=yes/2=no): 2
+The environment has been reset!
+Traceback (most recent call last):
+  File "10_D3QN_PER_image_add_sensor_empty_world_30m.py", line 641, in <module>
+    agent.main()
+  File "10_D3QN_PER_image_add_sensor_empty_world_30m.py", line 549, in main
+    env_info = env.get_env()
+  File "/home/sdcnlab/DRL_Path_QCar_MY/src/tf_pkg/scripts/gazebo_env_D3QN_PER_image_add_sensor_empty_world_30m.py", line 354, in get_env
+    for j in range(len(self.laser.ranges)):
+AttributeError: envmodel instance has no attribute 'laser'
